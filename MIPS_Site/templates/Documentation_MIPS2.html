@@ -48,6 +48,67 @@
     </div>
   </div>
 </div>
+  
+  All MIPS instructions are  32-bits. The user instruction  set is  a compiler-based encoding of  the micromachine. Multiple simple (and possibly unrelated) instruction pieces are packed together into an  instruction word. The basic  instruction  pieces are-
+ 
+A. ALU pieces 
+These instructions are all register/register (2 and  3  operand  formats). They all use  less than 1/2 of an instruction word. Included in this category are byte insert/extract, two bit Booths multiply  step,  and  one bit non restoring divide  step, as well as standard ALU and logical operations.
+ 
+B. Load/store pieces
+These instructions load and store memory operands. They use between 16 and 32 bits of an instruction word.  When a load instruction is less than  32 bits, it may be packaged with an ALU instruction, which is executed during the Execution stage of the pipeline.
+ 
+C. Control flow pieces 
+These include direct  jumps and compare instructions with relative jumps.  MIPS does not have condition codes, but includes a rich collection of sets conditionally and compare and jump instructions. The set conditional instructions provide a powerful implementation for conditional expressions. They set a register to all l's or 0's based on one of 16 possible comparisons done during the operand decode stage. During the Execution stage an ALU operation is available for logical operations with other booleans. The compare and jump instructions are direct encodings of the micromacfiine: the operand decode stage computes the address of the branch target and the Execution cycle does the comparison.  All branch  instructions have a delay in their effect of one instruction; i.e., the next sequential instruction is always executed.
+ 
+D. Other instructions -
+Include procedure and interrupt linkage. The procedure linkage instructions also  fit easily into the micromachine format of effective address calculation and register to register computation instructions.
+ 
+MIPS is a  word-addressed machine. This provides several major performance advantages over a byte addressed architecture. First, the use of word addressing simplifies the memory interface since extraction and insertion hardware is not needed. This is particularly important, since instruction and data fetch/store are in a  critical path. Second, when byte data (characters)  can be handled in word blocks, the computation is much more efficient. Last, the effectiveness  of short offsets from base register is multiplied by a factor of four. MIPS does not directly support  floating point arithmetic. For applications where such computations are infrequent, floating point operations implemented with integer operations and field insertion/extraction sequences  should  be sufficient. 
+
+2.4 Pipeline
+
+Pipelining is an implementation technique in which multiple instructions are overlapped in execution. Today, pipelining is nearly universal. MIPS instructions classically take five steps: 
+
+1. Fetch instruction from memory. 
+2. Read registers while decoding the instruction. The regular format of MIPS instructions allows reading and decoding to occur simultaneously. 
+3. Execute the operation or calculate an address.
+ 4. Access an operand in data memory.
+5. Write the result into a register. Hence, the MIPS pipeline we explore has five stages.
+
+MIPS Pipeline
+
+This section contains detailed information about the MIPS pipeline.
+
+3.1.1 Single Cycle Datapath
+
+The figure below shows the single-cycle datapath from Section 4.4 with the pipeline stages identified. The division of an instruction into five stages means a five-stage pipeline, which in turn means that up to five instructions will be in execution during any single clock cycle. Thus we must separate the datapath into five pieces, with each piece named corresponding to a stage of instruction execution: 
+1. IF: Instruction fetch 
+2. ID: Instruction decode and register file read 
+3. EX: Execution or address calculation 
+4. MEM: Data memory access 
+5. WB: Write back
+
+
+
+3.1.2 Pipeline Hazards 
+
+There are situations in pipelining when the next instruction cannot execute in the following clock cycle. These events are called hazards, and there are three different types. 
+
+3.1.2.1 Structural Hazards 
+
+The first hazard is called a structural hazard. It means that the hardware cannot support the combination of instructions that we want to execute in the same clock cycle.
+
+3.1.2.2 Data Hazards 
+
+Data hazards occur when the pipeline must be stalled because one step must wait for another to complete. In a computer pipeline, data hazards arise from the dependence of one instruction on an earlier one that is still in the pipeline (a relationship that does not really exist when doing laundry). For example, suppose we have an add instruction followed immediately by a subtract instruction that uses the sum ($s0): 
+add $s0, $t0, $t1 
+sub $t2, $s0, $t3 
+Without intervention, a data hazard could severely stall the pipeline. The add instruction doesn’t write its result until the fifth stage, meaning that we would have to waste three clock cycles in the pipeline. Although we could try to rely on compilers to remove all such hazards, the results would not be satisfactory. These dependencies happen just too often and the delay is just too long to expect the compiler to rescue us from this dilemma. The primary solution is based on the observation that we don’t need to wait for the instruction to complete before trying to resolve the data hazard. For the code sequence above, as soon as the ALU creates the sum for the add, we can supply it as an input for the subtract. Adding extra hardware to retrieve the missing item early from the internal resources is called forwarding or bypassing.
+
+3.1.2.3 Control hazard (Also called branch hazard)
+
+When the proper instruction cannot execute in the proper pipeline clock cycle because the instruction that was fetched is not the one that is needed; that is, the flow of instruction addresses is not what the pipeline expected.
+
 
 
 
