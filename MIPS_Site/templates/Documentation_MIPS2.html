@@ -65,7 +65,499 @@ Include procedure and interrupt linkage. The procedure linkage instructions also
  
 MIPS is a  word-addressed machine. This provides several major performance advantages over a byte addressed architecture. First, the use of word addressing simplifies the memory interface since extraction and insertion hardware is not needed. This is particularly important, since instruction and data fetch/store are in a  critical path. Second, when byte data (characters)  can be handled in word blocks, the computation is much more efficient. Last, the effectiveness  of short offsets from base register is multiplied by a factor of four. MIPS does not directly support  floating point arithmetic. For applications where such computations are infrequent, floating point operations implemented with integer operations and field insertion/extraction sequences  should  be sufficient. 
 
-2.4 Pipeline
+
+  
+  
+  
+  
+  
+  
+  
+  <p>This page describes the implementation details of the MIPS instruction formats.
+</p>
+<div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none" /><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#R_Instructions"><span class="tocnumber">1</span> <span class="toctext">R Instructions</span></a>
+<ul>
+<li class="toclevel-2 tocsection-2"><a href="#R_Format"><span class="tocnumber">1.1</span> <span class="toctext">R Format</span></a></li>
+<li class="toclevel-2 tocsection-3"><a href="#Function_Codes"><span class="tocnumber">1.2</span> <span class="toctext">Function Codes</span></a></li>
+<li class="toclevel-2 tocsection-4"><a href="#Shift_Values"><span class="tocnumber">1.3</span> <span class="toctext">Shift Values</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-5"><a href="#I_Instructions"><span class="tocnumber">2</span> <span class="toctext">I Instructions</span></a>
+<ul>
+<li class="toclevel-2 tocsection-6"><a href="#I_Format"><span class="tocnumber">2.1</span> <span class="toctext">I Format</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-7"><a href="#J_Instructions"><span class="tocnumber">3</span> <span class="toctext">J Instructions</span></a>
+<ul>
+<li class="toclevel-2 tocsection-8"><a href="#J_Format"><span class="tocnumber">3.1</span> <span class="toctext">J Format</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-9"><a href="#FR_Instructions"><span class="tocnumber">4</span> <span class="toctext">FR Instructions</span></a></li>
+<li class="toclevel-1 tocsection-10"><a href="#FI_Instructions"><span class="tocnumber">5</span> <span class="toctext">FI Instructions</span></a></li>
+<li class="toclevel-1 tocsection-11"><a href="#Opcodes"><span class="tocnumber">6</span> <span class="toctext">Opcodes</span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="R_Instructions">R Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=1" title="Edit section: R Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>R instructions are used when all the data values used by the instruction are located in registers.
+</p><p>All R-type instructions have the following format:
+</p>
+<pre>OP rd, rs, rt
+</pre>
+<p>Where "OP" is the mnemonic for the particular instruction. <i>rs</i>, and <i>rt</i> are the source registers, and <i>rd</i> is the destination register. As an example, the <b>add</b> mnemonic can be used as:
+</p>
+<pre>add $s1, $s2, $s3
+</pre>
+<p>Where the values in <i>$s2</i> and <i>$s3</i> are added together, and the result is stored in <i>$s1</i>. In the main narrative of this book, the operands will be denoted by these names. 
+</p>
+<h3><span class="mw-headline" id="R_Format">R Format</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=2" title="Edit section: R Format">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<p>Converting an R mnemonic into the equivalent binary machine code is performed in the following way:
+</p>
+<table class="wikitable" style="text-align: center;">
+
+<tbody><tr>
+<td>opcode</td>
+<td>rs</td>
+<td>rt</td>
+<td>rd</td>
+<td>shift (shamt)</td>
+<td>funct
+</td></tr>
+<tr>
+<td>6 bits</td>
+<td>5 bits</td>
+<td>5 bits</td>
+<td>5 bits</td>
+<td>5 bits</td>
+<td>6 bits
+</td></tr></tbody></table>
+<dl><dt>opcode</dt>
+<dd>The opcode is the machinecode representation of the instruction mnemonic. Several related instructions can have the same opcode. The opcode field is 6 bits long (bit 26 to bit 31).</dd>
+<dt>rs, rt, rd</dt>
+<dd>The numeric representations of the source registers and the destination register. These numbers correspond to the $X representation of a register, such as $0 or $31. Each of these fields is 5 bits long. (25 to 21, 20 to 16, and 15 to 11, respectively). Interestingly, rather than rs and rt being named r1 and r2 (for source register 1 and 2), the registers were named "rs" and "rt" for register source, register target and register destination.</dd>
+<dt>Shift (shamt)</dt>
+<dd>Used with the shift and rotate instructions, this is the amount by which the source operand <i>rs</i> is rotated/shifted. This field is 5 bits long (6 to 10).</dd>
+<dt>Funct</dt>
+<dd>For instructions that share an opcode, the <b>funct</b> parameter contains the necessary control codes to differentiate the different instructions. 6 bits long (0 to 5). Example: Opcode 0x00 accesses the ALU, and the funct selects which ALU function to use.</dd></dl>
+<h3><span class="mw-headline" id="Function_Codes">Function Codes</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=3" title="Edit section: Function Codes">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<p>Because several functions can have the same opcode, R-Type instructions need a function (Func) code to identify what exactly is being done - for example, 0x00 refers to an ALU operation and 0x20 refers to ADDing specifically.
+</p>
+<h3><span class="mw-headline" id="Shift_Values">Shift Values</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=4" title="Edit section: Shift Values">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<h2><span class="mw-headline" id="I_Instructions">I Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=5" title="Edit section: I Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>I instructions are used when the instruction must operate on an immediate value and a register value. Immediate values may be a maximum of 16 bits long. Larger numbers may not be manipulated by immediate instructions.
+</p><p>I instructions are called in the following way:
+</p>
+<pre>OP rt, IMM(rs)
+</pre>
+<p>However, <b>beq</b> and <b>bne</b> instructions are called in the following way:
+</p>
+<pre>OP  rs, rt, IMM
+</pre>
+<p>Where <i>rt</i> is the target register, <i>rs</i> is the source register, and <i>IMM</i> is the immediate value. The immediate value can be up to 16 bits long. For instance, the <b>addi</b> instruction can be called as:
+</p>
+<pre>addi $s1, $s2, 100
+</pre>
+<p>Where the value of $s2 plus 100 is stored in $s1.
+</p>
+<h3><span class="mw-headline" id="I_Format">I Format</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=6" title="Edit section: I Format">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<p>I instructions are converted into machine code words in the following format:
+</p>
+<table class="wikitable" style="text-align: center;">
+
+<tbody><tr>
+<td>opcode</td>
+<td>rs</td>
+<td>rt</td>
+<td>IMM
+</td></tr>
+<tr>
+<td>6 bits</td>
+<td>5 bits</td>
+<td>5 bits</td>
+<td>16 bits
+</td></tr></tbody></table>
+<dl><dt>Opcode</dt>
+<dd>The 6-bit opcode of the instruction. In I instructions, all mnemonics have a one-to-one correspondence with the underlying opcodes. This is because there is no <b>funct</b> parameter to differentiate instructions with an identical opcode. 6 bits (26 to 31)</dd>
+<dt>rs, rt</dt>
+<dd>The source and target register operands, respectively. 5 bits each (21 to 25 and 16 to 20, respectively).<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup></dd>
+<dt>IMM</dt>
+<dd>The 16 bit immediate value. 16 bits (0 to 15). This value is usually used as the offset value in various instructions, and depending on the instruction, may be expressed in two's complement.</dd></dl>
+<h2><span class="mw-headline" id="J_Instructions">J Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=7" title="Edit section: J Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>J instructions are used when a jump needs to be performed. The J instruction has the most space for an immediate value, because addresses are large numbers.
+</p><p>J instructions are called in the following way:
+</p>
+<pre>OP LABEL 
+</pre>
+<p>Where <i>OP</i> is the mnemonic for the particular jump instruction, and <i>LABEL</i> is the target address to jump to. 
+</p>
+<h3><span class="mw-headline" id="J_Format">J Format</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=8" title="Edit section: J Format">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<p>J instructions have the following machine-code format:
+</p>
+<table class="wikitable">
+
+<tbody><tr>
+<td>Opcode</td>
+<td>Pseudo-Address
+</td></tr></tbody></table>
+<dl><dt>Opcode</dt>
+<dd>The 6 bit opcode corresponding to the particular jump command. (26 to 31).</dd>
+<dt>Address</dt>
+<dd>A 26-bit shortened address of the destination. (0 to 25). The two least significant bits are removed, and the 4 most significant bits are removed, and assumed to be the same as the current instruction's address.</dd></dl>
+<h2><span class="mw-headline" id="FR_Instructions">FR Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=9" title="Edit section: FR Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>FR instructions are similar to the R instructions described above, except they are reserved for use with floating-point numbers:
+</p>
+<table class="wikitable">
+
+<tbody><tr>
+<td>Opcode</td>
+<td>fmt</td>
+<td>ft</td>
+<td>fs</td>
+<td>fd</td>
+<td>funct
+</td></tr></tbody></table>
+<h2><span class="mw-headline" id="FI_Instructions">FI Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=10" title="Edit section: FI Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>FI instructions are similar to the I instructions described above, except they are reserved for use with floating-point numbers:
+</p>
+<table class="wikitable">
+
+<tbody><tr>
+<td>Opcode</td>
+<td>fmt</td>
+<td>ft</td>
+<td>Imm
+</td></tr></tbody></table>
+<h2><span class="mw-headline" id="Opcodes">Opcodes</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=11" title="Edit section: Opcodes">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>The following table contains a listing of MIPS instructions and the corresponding opcodes. Opcode and funct numbers are all listed in hexadecimal.
+</p>
+<table class="wikitable sortable">
+<tbody><tr>
+<th scope="col">Mnemonic
+</th>
+<th scope="col">Meaning
+</th>
+<th scope="col">Type
+</th>
+<th scope="col">Opcode
+</th>
+<th scope="col">Funct
+</th></tr>
+<tr>
+<td><code>add</code></td>
+<td>Add</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x20
+</td></tr>
+<tr>
+<td><code>addi</code></td>
+<td>Add Immediate</td>
+<td>I</td>
+<td>0x08</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>addiu</code></td>
+<td>Add Unsigned Immediate</td>
+<td>I</td>
+<td>0x09</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>addu</code></td>
+<td>Add Unsigned</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x21
+</td></tr>
+<tr>
+<td><code>and</code></td>
+<td>Bitwise AND</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x24
+</td></tr>
+<tr>
+<td><code>andi</code></td>
+<td>Bitwise AND Immediate</td>
+<td>I</td>
+<td>0x0C</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>beq</code></td>
+<td>Branch if Equal</td>
+<td>I</td>
+<td>0x04</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>blez</code></td>
+<td>Branch if Less Than or Equal to Zero</td>
+<td>I</td>
+<td>0x06</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>bne</code></td>
+<td>Branch if Not Equal</td>
+<td>I</td>
+<td>0x05</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>bgtz</code></td>
+<td>Branch on Greater Than Zero</td>
+<td>I</td>
+<td>0x07</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>div</code></td>
+<td>Divide</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x1A
+</td></tr>
+<tr>
+<td><code>divu</code></td>
+<td>Unsigned Divide</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x1B
+</td></tr>
+<tr>
+<td><code>j</code></td>
+<td>Jump to Address</td>
+<td>J</td>
+<td>0x02</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>jal</code></td>
+<td>Jump and Link</td>
+<td>J</td>
+<td>0x03</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>jr</code></td>
+<td>Jump to Address in Register</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x08
+</td></tr>
+<tr>
+<td><code>lb</code></td>
+<td>Load Byte</td>
+<td>I</td>
+<td>0x20</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>lbu</code></td>
+<td>Load Byte Unsigned</td>
+<td>I</td>
+<td>0x24</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>lhu</code></td>
+<td>Load Halfword Unsigned</td>
+<td>I</td>
+<td>0x25</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>lui</code></td>
+<td>Load Upper Immediate</td>
+<td>I</td>
+<td>0x0F</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>lw</code></td>
+<td>Load Word</td>
+<td>I</td>
+<td>0x23</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>mfhi</code></td>
+<td>Move from HI Register</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x10
+</td></tr>
+<tr>
+<td><code>mthi</code></td>
+<td>Move to HI Register</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x11
+</td></tr>
+<tr>
+<td><code>mflo</code></td>
+<td>Move from LO Register</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x12
+</td></tr>
+<tr>
+<td><code>mtlo</code></td>
+<td>Move to LO Register</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x13
+</td></tr>
+<tr>
+<td><code>mfc0</code></td>
+<td>Move from Coprocessor 0</td>
+<td>R</td>
+<td>0x10</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>mult</code></td>
+<td>Multiply</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x18
+</td></tr>
+<tr>
+<td><code>multu</code></td>
+<td>Unsigned Multiply</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x19
+</td></tr>
+<tr>
+<td><code>nor</code></td>
+<td>Bitwise NOR (NOT-OR)</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x27
+</td></tr>
+<tr>
+<td><code>xor</code></td>
+<td>Bitwise XOR (Exclusive-OR)</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x26
+</td></tr>
+<tr>
+<td><code>or</code></td>
+<td>Bitwise OR</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x25
+</td></tr>
+<tr>
+<td><code>ori</code></td>
+<td>Bitwise OR Immediate</td>
+<td>I</td>
+<td>0x0D</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>sb</code></td>
+<td>Store Byte</td>
+<td>I</td>
+<td>0x28</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>sh</code></td>
+<td>Store Halfword</td>
+<td>I</td>
+<td>0x29</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>slt</code></td>
+<td>Set to 1 if Less Than</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x2A
+</td></tr>
+<tr>
+<td><code>slti</code></td>
+<td>Set to 1 if Less Than Immediate</td>
+<td>I</td>
+<td>0x0A</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>sltiu</code></td>
+<td>Set to 1 if Less Than Unsigned Immediate</td>
+<td>I</td>
+<td>0x0B</td>
+<td>NA
+</td></tr>
+<tr>
+<td><code>sltu</code></td>
+<td>Set to 1 if Less Than Unsigned</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x2B
+</td></tr>
+<tr>
+<td><code>sll</code></td>
+<td>Logical Shift Left</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x00
+</td></tr>
+<tr>
+<td><code>srl</code></td>
+<td>Logical Shift Right (0-extended)</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x02
+</td></tr>
+<tr>
+<td><code>sra</code></td>
+<td>Arithmetic Shift Right (sign-extended)</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x03
+</td></tr>
+<tr>
+<td><code>sub</code></td>
+<td>Subtract</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x22
+</td></tr>
+<tr>
+<td><code>subu</code></td>
+<td>Unsigned Subtract</td>
+<td>R</td>
+<td>0x00</td>
+<td>0x23
+</td></tr>
+<tr>
+<td><code>sw</code></td>
+<td>Store Word</td>
+<td>I</td>
+<td>0x2B</td>
+<td>NA
+</td></tr></tbody></table>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  2.4 Pipeline
 
 Pipelining is an implementation technique in which multiple instructions are overlapped in execution. Today, pipelining is nearly universal. MIPS instructions classically take five steps: 
 
