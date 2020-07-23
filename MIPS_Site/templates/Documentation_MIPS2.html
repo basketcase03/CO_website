@@ -75,32 +75,8 @@ MIPS is a  word-addressed machine. This provides several major performance advan
   
   <p>This page describes the implementation details of the MIPS instruction formats.
 </p>
-<div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none" /><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
-<ul>
-<li class="toclevel-1 tocsection-1"><a href="#R_Instructions"><span class="tocnumber">1</span> <span class="toctext">R Instructions</span></a>
-<ul>
-<li class="toclevel-2 tocsection-2"><a href="#R_Format"><span class="tocnumber">1.1</span> <span class="toctext">R Format</span></a></li>
-<li class="toclevel-2 tocsection-3"><a href="#Function_Codes"><span class="tocnumber">1.2</span> <span class="toctext">Function Codes</span></a></li>
-<li class="toclevel-2 tocsection-4"><a href="#Shift_Values"><span class="tocnumber">1.3</span> <span class="toctext">Shift Values</span></a></li>
-</ul>
-</li>
-<li class="toclevel-1 tocsection-5"><a href="#I_Instructions"><span class="tocnumber">2</span> <span class="toctext">I Instructions</span></a>
-<ul>
-<li class="toclevel-2 tocsection-6"><a href="#I_Format"><span class="tocnumber">2.1</span> <span class="toctext">I Format</span></a></li>
-</ul>
-</li>
-<li class="toclevel-1 tocsection-7"><a href="#J_Instructions"><span class="tocnumber">3</span> <span class="toctext">J Instructions</span></a>
-<ul>
-<li class="toclevel-2 tocsection-8"><a href="#J_Format"><span class="tocnumber">3.1</span> <span class="toctext">J Format</span></a></li>
-</ul>
-</li>
-<li class="toclevel-1 tocsection-9"><a href="#FR_Instructions"><span class="tocnumber">4</span> <span class="toctext">FR Instructions</span></a></li>
-<li class="toclevel-1 tocsection-10"><a href="#FI_Instructions"><span class="tocnumber">5</span> <span class="toctext">FI Instructions</span></a></li>
-<li class="toclevel-1 tocsection-11"><a href="#Opcodes"><span class="tocnumber">6</span> <span class="toctext">Opcodes</span></a></li>
-</ul>
-</div>
 
-<h2><span class="mw-headline" id="R_Instructions">R Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=1" title="Edit section: R Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="R_Instructions">R Instructions</span><span class="mw-editsection"></h2>
 <p>R instructions are used when all the data values used by the instruction are located in registers.
 </p><p>All R-type instructions have the following format:
 </p>
@@ -112,7 +88,7 @@ MIPS is a  word-addressed machine. This provides several major performance advan
 </pre>
 <p>Where the values in <i>$s2</i> and <i>$s3</i> are added together, and the result is stored in <i>$s1</i>. In the main narrative of this book, the operands will be denoted by these names. 
 </p>
-<h3><span class="mw-headline" id="R_Format">R Format</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=2" title="Edit section: R Format">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<h3><span class="mw-headline" id="R_Format">R Format</span></h3>
 <p>Converting an R mnemonic into the equivalent binary machine code is performed in the following way:
 </p>
 <table class="wikitable" style="text-align: center;">
@@ -141,11 +117,11 @@ MIPS is a  word-addressed machine. This provides several major performance advan
 <dd>Used with the shift and rotate instructions, this is the amount by which the source operand <i>rs</i> is rotated/shifted. This field is 5 bits long (6 to 10).</dd>
 <dt>Funct</dt>
 <dd>For instructions that share an opcode, the <b>funct</b> parameter contains the necessary control codes to differentiate the different instructions. 6 bits long (0 to 5). Example: Opcode 0x00 accesses the ALU, and the funct selects which ALU function to use.</dd></dl>
-<h3><span class="mw-headline" id="Function_Codes">Function Codes</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=3" title="Edit section: Function Codes">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<h3><span class="mw-headline" id="Function_Codes">Function Codes</span></h3>
 <p>Because several functions can have the same opcode, R-Type instructions need a function (Func) code to identify what exactly is being done - for example, 0x00 refers to an ALU operation and 0x20 refers to ADDing specifically.
 </p>
-<h3><span class="mw-headline" id="Shift_Values">Shift Values</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=4" title="Edit section: Shift Values">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
-<h2><span class="mw-headline" id="I_Instructions">I Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=5" title="Edit section: I Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h3><span class="mw-headline" id="Shift_Values">Shift Values</span></h3>
+<h2><span class="mw-headline" id="I_Instructions">I Instructions</span></h2>
 <p>I instructions are used when the instruction must operate on an immediate value and a register value. Immediate values may be a maximum of 16 bits long. Larger numbers may not be manipulated by immediate instructions.
 </p><p>I instructions are called in the following way:
 </p>
@@ -161,7 +137,7 @@ MIPS is a  word-addressed machine. This provides several major performance advan
 </pre>
 <p>Where the value of $s2 plus 100 is stored in $s1.
 </p>
-<h3><span class="mw-headline" id="I_Format">I Format</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=6" title="Edit section: I Format">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<h3><span class="mw-headline" id="I_Format">I Format</span></h3>
 <p>I instructions are converted into machine code words in the following format:
 </p>
 <table class="wikitable" style="text-align: center;">
@@ -184,7 +160,7 @@ MIPS is a  word-addressed machine. This provides several major performance advan
 <dd>The source and target register operands, respectively. 5 bits each (21 to 25 and 16 to 20, respectively).<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup></dd>
 <dt>IMM</dt>
 <dd>The 16 bit immediate value. 16 bits (0 to 15). This value is usually used as the offset value in various instructions, and depending on the instruction, may be expressed in two's complement.</dd></dl>
-<h2><span class="mw-headline" id="J_Instructions">J Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=7" title="Edit section: J Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="J_Instructions">J Instructions</span></h2>
 <p>J instructions are used when a jump needs to be performed. The J instruction has the most space for an immediate value, because addresses are large numbers.
 </p><p>J instructions are called in the following way:
 </p>
@@ -192,7 +168,7 @@ MIPS is a  word-addressed machine. This provides several major performance advan
 </pre>
 <p>Where <i>OP</i> is the mnemonic for the particular jump instruction, and <i>LABEL</i> is the target address to jump to. 
 </p>
-<h3><span class="mw-headline" id="J_Format">J Format</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=8" title="Edit section: J Format">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<h3><span class="mw-headline" id="J_Format">J Format</span></h3>
 <p>J instructions have the following machine-code format:
 </p>
 <table class="wikitable">
@@ -205,7 +181,7 @@ MIPS is a  word-addressed machine. This provides several major performance advan
 <dd>The 6 bit opcode corresponding to the particular jump command. (26 to 31).</dd>
 <dt>Address</dt>
 <dd>A 26-bit shortened address of the destination. (0 to 25). The two least significant bits are removed, and the 4 most significant bits are removed, and assumed to be the same as the current instruction's address.</dd></dl>
-<h2><span class="mw-headline" id="FR_Instructions">FR Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=9" title="Edit section: FR Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="FR_Instructions">FR Instructions</span></h2>
 <p>FR instructions are similar to the R instructions described above, except they are reserved for use with floating-point numbers:
 </p>
 <table class="wikitable">
@@ -218,7 +194,7 @@ MIPS is a  word-addressed machine. This provides several major performance advan
 <td>fd</td>
 <td>funct
 </td></tr></tbody></table>
-<h2><span class="mw-headline" id="FI_Instructions">FI Instructions</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=10" title="Edit section: FI Instructions">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="FI_Instructions">FI Instructions</span></h2>
 <p>FI instructions are similar to the I instructions described above, except they are reserved for use with floating-point numbers:
 </p>
 <table class="wikitable">
@@ -229,7 +205,7 @@ MIPS is a  word-addressed machine. This provides several major performance advan
 <td>ft</td>
 <td>Imm
 </td></tr></tbody></table>
-<h2><span class="mw-headline" id="Opcodes">Opcodes</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=MIPS_Assembly/Instruction_Formats&amp;action=edit&amp;section=11" title="Edit section: Opcodes">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="Opcodes">Opcodes</span></h2>
 <p>The following table contains a listing of MIPS instructions and the corresponding opcodes. Opcode and funct numbers are all listed in hexadecimal.
 </p>
 <table class="wikitable sortable">
