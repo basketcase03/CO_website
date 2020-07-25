@@ -41,7 +41,7 @@
       <div class="row">
         <div class="col-md-12">
           <div class="banner-text">
-            <h2><u>MIPS Pipeline Theory</u></h2>
+            <h2><u>MIPS Assembler Theory</u></h2>
             </div>
         </div>
       </div>
@@ -525,53 +525,6 @@ MIPS is a  word-addressed machine. This provides several major performance advan
   
   
   <br><br>
-  In addition to this, we also have the Pipeline.<br>
- <h2><span class="mw-headline" id="R_Instructions">Pipeline</span></h2>
-<br>
-Pipelining is an implementation technique in which multiple instructions are overlapped in execution. Today, pipelining is nearly universal. MIPS instructions classically take five steps: 
-<br><br>
-1. Fetch instruction from memory. <br>
-2. Read registers while decoding the instruction. The regular format of MIPS instructions allows reading and decoding to occur simultaneously. <br>
-3. Execute the operation or calculate an address.<br>
- 4. Access an operand in data memory.<br>
-5. Write the result into a register. Hence, the MIPS pipeline we explore has five stages.<br><br>
-
-MIPS Pipeline<br>
-
-This section contains detailed information about the MIPS pipeline. <br><br>
-
-Single Cycle Datapath<br>
-
-The figure below shows the single-cycle datapath from Section 4.4 with the pipeline stages identified. The division of an instruction into five stages means a five-stage pipeline, which in turn means that up to five instructions will be in execution during any single clock cycle. Thus we must separate the datapath into five pieces, with each piece named corresponding to a stage of instruction execution: 
-<br>
-  1. IF: Instruction fetch <br>
-2. ID: Instruction decode and register file read <br>
-3. EX: Execution or address calculation <br>
-4. MEM: Data memory access <br>
-5. WB: Write back <br> <br>
-
-
-
- Pipeline Hazards <br>
-
-There are situations in pipelining when the next instruction cannot execute in the following clock cycle. These events are called hazards, and there are three different types. 
-<br>
-Structural Hazards <br> 
-
-The first hazard is called a structural hazard. It means that the hardware cannot support the combination of instructions that we want to execute in the same clock cycle.
-<br>
-Data Hazards  <br>
-
-Data hazards occur when the pipeline must be stalled because one step must wait for another to complete. In a computer pipeline, data hazards arise from the dependence of one instruction on an earlier one that is still in the pipeline (a relationship that does not really exist when doing laundry). For example, suppose we have an add instruction followed immediately by a subtract instruction that uses the sum ($s0): 
-<br>
-  add $s0, $t0, $t1 <br>
-sub $t2, $s0, $t3 <br>
-Without intervention, a data hazard could severely stall the pipeline. The add instruction doesn’t write its result until the fifth stage, meaning that we would have to waste three clock cycles in the pipeline. Although we could try to rely on compilers to remove all such hazards, the results would not be satisfactory. These dependencies happen just too often and the delay is just too long to expect the compiler to rescue us from this dilemma. The primary solution is based on the observation that we don’t need to wait for the instruction to complete before trying to resolve the data hazard. For the code sequence above, as soon as the ALU creates the sum for the add, we can supply it as an input for the subtract. Adding extra hardware to retrieve the missing item early from the internal resources is called forwarding or bypassing.
-<br><br>
-Control hazard (Also called branch hazard) <br>
-
-When the proper instruction cannot execute in the proper pipeline clock cycle because the instruction that was fetched is not the one that is needed; that is, the flow of instruction addresses is not what the pipeline expected.
-
 
 
 
